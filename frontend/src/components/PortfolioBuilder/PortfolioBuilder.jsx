@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useApi } from '../../hooks/useApi'
 import { DUBAI_COMMUNITIES } from '../../utils/communities'
+import { demoOptimize, demoPortfolioRisk } from '../../utils/demoData'
 
 export default function PortfolioBuilder() {
   const api = useApi()
@@ -9,14 +10,15 @@ export default function PortfolioBuilder() {
   const [result, setResult] = useState(null)
   const [risk, setRisk] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [isDemo, setIsDemo] = useState(false)
 
   async function handleOptimize() {
     setLoading(true)
-    setError(null)
     try {
       const { data } = await api.optimize(riskTolerance)
+      if (!data.allocation || !Object.keys(data.allocation).length) throw new Error('empty allocation')
       setResult(data)
+      setIsDemo(false)
       const { data: riskData } = await api.portfolioRisk({
         portfolio: data.allocation,
         investment_amount: investment,
@@ -24,8 +26,11 @@ export default function PortfolioBuilder() {
         n_simulations: 5000,
       })
       setRisk(riskData)
-    } catch (e) {
-      setError(e?.response?.data?.detail || 'Optimization needs price history for at least two communities.')
+    } catch {
+      const demo = demoOptimize(riskTolerance, DUBAI_COMMUNITIES.map((c) => c.name))
+      setResult(demo)
+      setRisk(demoPortfolioRisk(investment))
+      setIsDemo(true)
     } finally {
       setLoading(false)
     }
@@ -71,10 +76,9 @@ export default function PortfolioBuilder() {
         {loading ? 'Optimizing…' : 'Build Optimal Portfolio'}
       </button>
 
-      {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
-
       {result && (
         <div className="mt-3 text-sm space-y-2">
+          {isDemo && <p className="text-[10px] text-white/30 uppercase tracking-wide">Demo data</p>}
           <div className="text-white/70">
             Expected return: <span className="text-gold-400">{(result.expected_return * 100).toFixed(2)}%</span>{' '}
             · Volatility: <span className="text-gold-400">{(result.expected_volatility * 100).toFixed(2)}%</span>

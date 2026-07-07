@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useApi } from '../../hooks/useApi'
+import { DUBAI_COMMUNITIES } from '../../utils/communities'
+import { demoCorrelationMatrix } from '../../utils/demoData'
 
 function colorFor(value) {
   // -1 -> red, 0 -> ink, 1 -> gold
@@ -13,22 +15,33 @@ function colorFor(value) {
 export default function Heatmap({ onSelect }) {
   const api = useApi()
   const [matrix, setMatrix] = useState(null)
-  const [error, setError] = useState(null)
+  const [isDemo, setIsDemo] = useState(false)
 
   useEffect(() => {
     api.getCorrelation()
-      .then(({ data }) => setMatrix(data))
-      .catch(() => setError('Correlation matrix needs at least two communities with data.'))
+      .then(({ data }) => {
+        if (data.communities?.length >= 2) setMatrix(data)
+        else {
+          setMatrix(demoCorrelationMatrix(DUBAI_COMMUNITIES.map((c) => c.name)))
+          setIsDemo(true)
+        }
+      })
+      .catch(() => {
+        setMatrix(demoCorrelationMatrix(DUBAI_COMMUNITIES.map((c) => c.name)))
+        setIsDemo(true)
+      })
   }, [])
 
-  if (error) return <div className="text-xs text-white/40">{error}</div>
   if (!matrix) return <div className="text-xs text-white/40">Loading correlation heatmap…</div>
 
   const { communities, matrix: values } = matrix
 
   return (
     <div>
-      <h2 className="font-semibold text-gold-400 mb-2">Correlation Heatmap</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="font-semibold text-gold-400">Correlation Heatmap</h2>
+        {isDemo && <span className="text-[10px] text-white/30 uppercase tracking-wide">Demo data</span>}
+      </div>
       <div className="overflow-auto">
         <div
           className="grid gap-[2px]"

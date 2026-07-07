@@ -38,3 +38,59 @@ export function demoLatestLevel(community) {
   const series = demoIndexSeries(community, 6)
   return series[series.length - 1].value
 }
+
+export function demoCorrelationMatrix(communities) {
+  const n = communities.length
+  const base = communities.map((c) => mulberry32(seedFromString(c)))
+  const matrix = Array.from({ length: n }, () => Array(n).fill(0))
+  for (let i = 0; i < n; i++) {
+    for (let j = i; j < n; j++) {
+      if (i === j) {
+        matrix[i][j] = 1
+      } else {
+        const v = base[i]() * 2 - 1
+        const value = +Math.max(-0.95, Math.min(0.95, v * 0.8)).toFixed(2)
+        matrix[i][j] = value
+        matrix[j][i] = value
+      }
+    }
+  }
+  return { communities, matrix }
+}
+
+export function demoEfficientFrontier(communities) {
+  const rand = mulberry32(seedFromString(communities.join('|')))
+  const minRisk = 4 + rand() * 2
+  const maxRisk = 18 + rand() * 6
+  const points = []
+  for (let i = 0; i <= 30; i++) {
+    const t = i / 30
+    const risk = minRisk + (maxRisk - minRisk) * t
+    const ret = 3 + 14 * Math.sqrt(t) + (rand() - 0.5) * 0.6
+    points.push({ risk: +risk.toFixed(2), return: +ret.toFixed(2) })
+  }
+  return points
+}
+
+export function demoOptimize(riskTolerance, communities) {
+  const rand = mulberry32(seedFromString(`opt-${riskTolerance}`))
+  const n = Math.min(4, communities.length)
+  const picked = [...communities].sort(() => rand() - 0.5).slice(0, n)
+  const raw = picked.map(() => rand() + 0.2)
+  const sum = raw.reduce((a, b) => a + b, 0)
+  const allocation = {}
+  picked.forEach((c, i) => {
+    allocation[c] = +(raw[i] / sum).toFixed(3)
+  })
+  return {
+    allocation,
+    expected_return: 0.06 + riskTolerance * 0.12,
+    expected_volatility: 0.05 + riskTolerance * 0.18,
+  }
+}
+
+export function demoPortfolioRisk(investmentAmount) {
+  const var95 = -investmentAmount * 0.08
+  const cvar95 = -investmentAmount * 0.12
+  return { var_95: var95, cvar_95: cvar95, var_99: var95 * 1.5, cvar_99: cvar95 * 1.5 }
+}
