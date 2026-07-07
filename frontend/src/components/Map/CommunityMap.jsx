@@ -2,36 +2,44 @@ import { useEffect, useState } from 'react'
 import { useApi } from '../../hooks/useApi'
 import { DUBAI_COMMUNITIES } from '../../utils/communities'
 import { MagicCard } from '../magicui/magic-card'
+import { demoLatestLevel } from '../../utils/demoData'
 
 const ACCENTS = ['#E8C874', '#7DA6FF', '#7EE8B0', '#F0A6A6', '#C9A24B', '#9E9EF0']
 
 export default function CommunityMap({ onSelect, selected }) {
   const api = useApi()
   const [levels, setLevels] = useState({})
-  const [error, setError] = useState(null)
+  const [isDemo, setIsDemo] = useState(true)
 
   useEffect(() => {
     api.getAllIndices()
       .then(({ data }) => {
         const latest = {}
+        let hasReal = false
         Object.entries(data).forEach(([community, series]) => {
           const dates = Object.keys(series).sort()
-          latest[community] = dates.length ? series[dates[dates.length - 1]] : null
+          if (dates.length) {
+            latest[community] = series[dates[dates.length - 1]]
+            hasReal = true
+          }
         })
-        setLevels(latest)
+        if (hasReal) {
+          setLevels(latest)
+          setIsDemo(false)
+        }
       })
-      .catch(() => setError('No live index data yet — showing tracked communities.'))
+      .catch(() => {})
   }, [])
 
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-semibold text-gold-400">Communities</h2>
-        {error && <span className="text-[11px] text-white/40">{error}</span>}
+        {isDemo && <span className="text-[10px] text-white/30 uppercase tracking-wide">Demo data</span>}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-auto pr-1">
         {DUBAI_COMMUNITIES.map((c, i) => {
-          const level = levels[c.name]
+          const level = levels[c.name] ?? (isDemo ? demoLatestLevel(c.name) : null)
           const isSelected = selected === c.name
           const accent = ACCENTS[i % ACCENTS.length]
           return (
