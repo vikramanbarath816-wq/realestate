@@ -6,8 +6,14 @@ import Aurora from './components/Backgrounds/Aurora'
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col relative">
-      <div className="fixed inset-0 -z-10 opacity-40">
-        <Aurora colorStops={['#C9A24B', '#3B7A57', '#0B1F3A']} amplitude={0.8} blend={0.6} />
+      <div className="fixed inset-0 -z-10 bg-ink-900">
+        <div className="absolute inset-0 opacity-70">
+          <Aurora colorStops={['#E8C874', '#3B7A57', '#0B1F3A']} amplitude={1.4} blend={0.7} />
+        </div>
+        <div
+          className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse at 50% 0%, transparent 0%, #0B1420 75%)' }}
+        />
       </div>
 
       <nav className="p-4 flex items-center gap-4 border-b border-white/10 bg-ink-900/70 backdrop-blur">

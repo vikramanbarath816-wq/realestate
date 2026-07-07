@@ -4,6 +4,7 @@ import EfficientFrontierView from '../EfficientFrontier/EfficientFrontierView'
 import PortfolioBuilder from '../PortfolioBuilder/PortfolioBuilder'
 import CommunityDetailPanel from '../CommunityDetail/CommunityDetailPanel'
 import Heatmap from '../Heatmap/Heatmap'
+import Listings from '../Listings/Listings'
 
 export default function Dashboard() {
   const [selectedCommunity, setSelectedCommunity] = useState(null)
@@ -11,6 +12,7 @@ export default function Dashboard() {
   return (
     <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4">
       <div className="flex-1 flex flex-col gap-4">
+        <Listings onSelect={setSelectedCommunity} />
         <div className="card h-[45vh]">
           <CommunityMap onSelect={setSelectedCommunity} selected={selectedCommunity} />
         </div>
