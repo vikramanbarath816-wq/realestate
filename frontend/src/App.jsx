@@ -1,22 +1,24 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import Dashboard from './components/Dashboard/Dashboard'
 import AuthPage from './components/Auth/AuthPage'
-import Aurora from './components/Backgrounds/Aurora'
 import Logo from './components/Logo'
 import { AuroraText } from './components/magicui/aurora-text'
 import { DotPattern } from './components/magicui/dot-pattern'
+import { Particles } from './components/magicui/particles'
+import { Meteors } from './components/magicui/meteors'
 
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col relative">
-      <div className="fixed inset-0 -z-10 bg-ink-900">
-        <div className="absolute inset-0 opacity-70">
-          <Aurora colorStops={['#E8C874', '#3B7A57', '#0B1F3A']} amplitude={1.4} blend={0.7} />
-        </div>
-        <div
-          className="absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse at 50% 0%, transparent 0%, #0B1420 75%)' }}
-        />
+      <div
+        className="fixed inset-0 -z-10 overflow-hidden"
+        style={{
+          background:
+            'radial-gradient(ellipse 80% 60% at 20% -10%, rgba(201,162,75,0.18), transparent 60%), radial-gradient(ellipse 70% 50% at 100% 0%, rgba(59,90,158,0.22), transparent 60%), linear-gradient(180deg, #0B1420 0%, #0A121E 50%, #070C14 100%)',
+        }}
+      >
+        <Particles quantity={90} color="#E8C874" size={1.1} />
+        <Meteors number={14} />
       </div>
 
       <nav className="relative overflow-hidden px-5 py-3 flex items-center gap-3 border-b border-white/10 bg-ink-900/60 backdrop-blur-md">

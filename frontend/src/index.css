@@ -17,3 +17,39 @@ body {
 .input {
   @apply bg-ink-700 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500;
 }
+
+.meteor {
+  animation-name: meteor;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.meteor::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, #e8c874, transparent);
+}
+
+@keyframes meteor {
+  0% {
+    transform: translateY(-10%) translateX(0) rotate(35deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(120vh) translateX(60vh) rotate(35deg);
+    opacity: 0;
+  }
+}
+
+.magic-card:hover .magic-card-glow {
+  opacity: 1;
+}
+
+.magic-card-glow {
+  background: radial-gradient(320px circle at var(--x) var(--y), color-mix(in srgb, var(--glow) 25%, transparent), transparent 70%);
+}
+

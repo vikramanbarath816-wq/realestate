@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useApi } from '../../hooks/useApi'
 import { DUBAI_COMMUNITIES } from '../../utils/communities'
+import { MagicCard } from '../magicui/magic-card'
+
+const ACCENTS = ['#E8C874', '#7DA6FF', '#7EE8B0', '#F0A6A6', '#C9A24B', '#9E9EF0']
 
 export default function CommunityMap({ onSelect, selected }) {
   const api = useApi()
@@ -17,35 +20,38 @@ export default function CommunityMap({ onSelect, selected }) {
         })
         setLevels(latest)
       })
-      .catch(() => setError('Could not load community index data yet.'))
+      .catch(() => setError('No live index data yet — showing tracked communities.'))
   }, [])
 
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="font-semibold text-gold-400">Community Map</h2>
-        {error && <span className="text-xs text-white/40">{error}</span>}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-semibold text-gold-400">Communities</h2>
+        {error && <span className="text-[11px] text-white/40">{error}</span>}
       </div>
-      <div className="relative flex-1 rounded-lg bg-ink-700/50 overflow-hidden">
-        {DUBAI_COMMUNITIES.map((c) => {
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-auto pr-1">
+        {DUBAI_COMMUNITIES.map((c, i) => {
           const level = levels[c.name]
           const isSelected = selected === c.name
+          const accent = ACCENTS[i % ACCENTS.length]
           return (
-            <button
+            <MagicCard
               key={c.name}
               onClick={() => onSelect(c.name)}
-              style={{ left: `${c.x}%`, top: `${c.y}%` }}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group`}
+              gradientColor={accent}
+              className={`cursor-pointer p-3 transition-transform hover:-translate-y-0.5 ${
+                isSelected ? 'ring-1 ring-gold-400/70' : ''
+              }`}
             >
-              <span
-                className={`w-3 h-3 rounded-full transition-transform group-hover:scale-125 ${
-                  isSelected ? 'bg-gold-400 scale-150 ring-2 ring-gold-400/50' : 'bg-gold-500/70'
-                }`}
-              />
-              <span className="mt-1 text-[10px] whitespace-nowrap bg-ink-900/80 px-1.5 py-0.5 rounded text-white/80 opacity-0 group-hover:opacity-100 transition-opacity">
-                {c.name}{level ? ` · ${level.toFixed(1)}` : ''}
-              </span>
-            </button>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: accent, boxShadow: `0 0 8px ${accent}` }} />
+                <span className="text-xs font-medium text-white/90 truncate">{c.name}</span>
+              </div>
+              <div className="text-lg font-semibold text-white/95">
+                {level ? level.toFixed(1) : '—'}
+              </div>
+              <div className="text-[10px] text-white/40">price index</div>
+            </MagicCard>
           )
         })}
       </div>
