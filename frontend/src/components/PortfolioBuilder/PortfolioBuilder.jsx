@@ -12,28 +12,29 @@ export default function PortfolioBuilder() {
   const [loading, setLoading] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
 
-  async function handleOptimize() {
+  function handleOptimize() {
+    // Show a result immediately so the button always feels responsive;
+    // silently upgrade to live data if the backend answers.
+    const demo = demoOptimize(riskTolerance, DUBAI_COMMUNITIES.map((c) => c.name))
+    setResult(demo)
+    setRisk(demoPortfolioRisk(investment))
+    setIsDemo(true)
     setLoading(true)
-    try {
-      const { data } = await api.optimize(riskTolerance)
-      if (!data.allocation || !Object.keys(data.allocation).length) throw new Error('empty allocation')
-      setResult(data)
-      setIsDemo(false)
-      const { data: riskData } = await api.portfolioRisk({
-        portfolio: data.allocation,
-        investment_amount: investment,
-        horizon_years: 1,
-        n_simulations: 5000,
+
+    api.optimize(riskTolerance)
+      .then(({ data }) => {
+        if (!data?.allocation || !Object.keys(data.allocation).length) return
+        setResult(data)
+        setIsDemo(false)
+        return api.portfolioRisk({
+          portfolio: data.allocation,
+          investment_amount: investment,
+          horizon_years: 1,
+          n_simulations: 5000,
+        }).then(({ data: riskData }) => setRisk(riskData))
       })
-      setRisk(riskData)
-    } catch {
-      const demo = demoOptimize(riskTolerance, DUBAI_COMMUNITIES.map((c) => c.name))
-      setResult(demo)
-      setRisk(demoPortfolioRisk(investment))
-      setIsDemo(true)
-    } finally {
-      setLoading(false)
-    }
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }
 
   async function handleDownload() {
